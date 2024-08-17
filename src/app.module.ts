@@ -1,15 +1,24 @@
-import { Module } from '@nestjs/common'
-import { UrlsModule } from './urls/urls.module'
+import { MiddlewareConsumer, Module } from '@nestjs/common'
+import { ShortUrlsModule } from './urls/short-urls.module'
 import { RedisModule } from './utils/modules/redis.module'
 import { ConfigModule } from '@nestjs/config'
 import { MongoDbModule } from './utils/modules/mongo-db.module'
+import { UsersModule } from './users/users.module'
+import { AuthModule } from './auth/auth.module'
+import { LoggerMiddleware } from './utils/middlewares/logger.middleware'
 
 @Module({
 	imports: [
 		ConfigModule.forRoot({ isGlobal: true }),
 		RedisModule,
 		MongoDbModule,
-		UrlsModule
+		ShortUrlsModule,
+		UsersModule,
+		AuthModule
 	]
 })
-export class AppModule {}
+export class AppModule {
+	configure(consumer: MiddlewareConsumer) {
+		consumer.apply(LoggerMiddleware).forRoutes('*')
+	}
+}

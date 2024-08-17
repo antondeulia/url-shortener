@@ -1,11 +1,14 @@
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { ConfigService } from '@nestjs/config'
+import { LoggerInterceptor } from './utils/interceptors/logger.interceptor'
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule)
 
 	app.setGlobalPrefix('api')
+
+	app.useGlobalInterceptors(new LoggerInterceptor())
 
 	const configService = app.get<ConfigService>(ConfigService)
 

@@ -1,16 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger'
 import {
 	IsDefined,
-	IsEnum,
 	IsNotEmpty,
 	IsOptional,
 	IsString,
 	IsUrl,
 	MaxLength
 } from 'class-validator'
-import { ShortUrlTypesEnum } from '../enums/shorten-url-types.enum'
 
-export class ShortenUrlDto {
+export class CreateShortUrlDto {
 	@ApiProperty({ required: false })
 	@IsOptional()
 	@IsNotEmpty()
@@ -23,11 +21,5 @@ export class ShortenUrlDto {
 	@IsDefined()
 	@IsString()
 	@IsUrl()
-	url: string
-
-	@ApiProperty({ required: true })
-	@IsNotEmpty()
-	@IsDefined()
-	@IsEnum(ShortUrlTypesEnum)
-	type: ShortUrlTypesEnum
+	fullUrl: string
 }

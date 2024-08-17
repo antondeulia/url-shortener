@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
-import { HydratedDocument } from 'mongoose'
+import { HydratedDocument, Types } from 'mongoose'
 import { ShortUrlTypesEnum } from '../enums/shorten-url-types.enum'
 
-export type ShortenUrlDocument = HydratedDocument<ShortUrl>
+export type ShortUrlDocument = HydratedDocument<ShortUrl>
 
 @Schema()
 export class ShortUrl {
@@ -13,7 +13,7 @@ export class ShortUrl {
 	fullUrl: string
 
 	@Prop({ required: true })
-	url: string
+	shortenedUrl: string
 
 	@Prop({ required: true })
 	code: string
@@ -23,6 +23,9 @@ export class ShortUrl {
 
 	@Prop({ default: 0 })
 	clicks: number
+
+	@Prop({ type: Types.ObjectId, ref: 'User', required: true })
+	user: Types.ObjectId
 }
 
 export const ShortUrlSchema = SchemaFactory.createForClass(ShortUrl)
