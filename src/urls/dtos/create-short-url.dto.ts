@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import {
 	IsDefined,
+	IsHexColor,
 	IsNotEmpty,
 	IsOptional,
 	IsString,
@@ -22,4 +23,10 @@ export class CreateShortUrlDto {
 	@IsString()
 	@IsUrl()
 	fullUrl: string
+
+	@ApiProperty({ required: false })
+	@IsNotEmpty()
+	@IsOptional()
+	@IsHexColor()
+	bgColor?: string
 }

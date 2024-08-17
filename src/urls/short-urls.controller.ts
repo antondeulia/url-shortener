@@ -8,6 +8,7 @@ import {
 	Param,
 	Patch,
 	Post,
+	Query,
 	Res,
 	UseGuards
 } from '@nestjs/common'
@@ -18,6 +19,9 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger'
 import { JwtAccessGuard } from 'src/auth/guards/jwt-access.guard'
 import { CurrentUser } from 'src/utils/decorators/current-user.decorator'
 import { SHORT_URLS } from './short-urls.constants'
+import { ShortUrl } from './schemas/short-url.schema'
+import { Types } from 'mongoose'
+import { GetShortUrlsQueryDto } from './dtos/get-short-urls-query.dto'
 
 @ApiTags(SHORT_URLS)
 @UseGuards(JwtAccessGuard)
@@ -28,18 +32,30 @@ export class ShortUrlsController {
 	@ApiOperation({ description: 'Returns all short urls' })
 	@HttpCode(HttpStatus.OK)
 	@Get()
-	async get(@CurrentUser('_id') userId: string): Promise<any> {
-		return await this.shortUrlsService.get(userId)
+	async get(
+		@CurrentUser('_id') userId: string,
+		@Query() queryDto: GetShortUrlsQueryDto
+	): Promise<any> {
+		return await this.shortUrlsService.get(userId, queryDto)
+	}
+
+	@ApiOperation({ description: 'Returns status of the short url' })
+	@Get(':code/status')
+	async getStatus(
+		@CurrentUser('_id') userId: string,
+		@Param('id') id: string
+	): Promise<any> {
+		return await this.shortUrlsService.getStatus(userId, id)
 	}
 
 	@ApiOperation({ description: 'Redirects to full url by code' })
 	@HttpCode(HttpStatus.OK)
 	@Get(':code')
-	async redirect(
+	async openOne(
 		@CurrentUser('_id') userId: string,
 		@Param('code') code: string,
 		@Res({ passthrough: true }) res: Response
-	): Promise<any> {
+	): Promise<void> {
 		await this.shortUrlsService.openOne(userId, code, res)
 	}
 
@@ -49,7 +65,7 @@ export class ShortUrlsController {
 	async shortenUrl(
 		@CurrentUser('_id') userId: string,
 		@Body() dto: CreateShortUrlDto
-	): Promise<any> {
+	): Promise<ShortUrl> {
 		return await this.shortUrlsService.createOne(userId, dto)
 	}
 
@@ -60,7 +76,7 @@ export class ShortUrlsController {
 		@CurrentUser('_id') userId: string,
 		@Param('id') id: string,
 		@Body() dto: any
-	) {
+	): Promise<Types.ObjectId> {
 		return await this.shortUrlsService.updateOne(userId, id, dto)
 	}
 

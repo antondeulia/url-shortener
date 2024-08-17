@@ -4,7 +4,7 @@ import { ShortUrlTypesEnum } from '../enums/shorten-url-types.enum'
 
 export type ShortUrlDocument = HydratedDocument<ShortUrl>
 
-@Schema()
+@Schema({ timestamps: true, collection: 'short_urls' })
 export class ShortUrl {
 	@Prop({ required: false })
 	name?: string
@@ -25,7 +25,10 @@ export class ShortUrl {
 	clicks: number
 
 	@Prop({ type: Types.ObjectId, ref: 'User', required: true })
-	user: Types.ObjectId
+	userId: Types.ObjectId
+
+	@Prop({ default: '#fff' })
+	bgColor?: string
 }
 
 export const ShortUrlSchema = SchemaFactory.createForClass(ShortUrl)

@@ -6,4 +6,7 @@ export class GetShortUrlDto {
 
 	@ApiProperty()
 	code?: string
+
+	@ApiProperty()
+	userId: string
 }
