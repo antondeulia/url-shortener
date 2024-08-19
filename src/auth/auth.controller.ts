@@ -4,7 +4,7 @@ import { ApiTags } from '@nestjs/swagger'
 import { RegisterDto } from './dtos/register.dto'
 import { Response } from 'express'
 import { LocalGuard } from './guards/local.guard'
-import { CurrentUser } from 'src/utils/decorators/current-user.decorator'
+import { CurrentUser } from '../utils/decorators/current-user.decorator'
 import { Types } from 'mongoose'
 
 @ApiTags('auth')

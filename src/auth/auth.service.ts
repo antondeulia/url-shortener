@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common'
-import { UsersService } from 'src/users/users.service'
+import { UsersService } from '../users/users.service'
 import { hash, verify } from 'argon2'
 import { RegisterDto } from './dtos/register.dto'
 import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
 import { Response } from 'express'
-import { JwtTokensEnum } from 'src/utils/enums/jwt-tokens.enum'
+import { JwtTokensEnum } from '../utils/enums/jwt-tokens.enum'
 import { Types } from 'mongoose'
 
 @Injectable()
