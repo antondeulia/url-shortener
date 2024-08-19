@@ -22,7 +22,7 @@ export class CreateShortUrlDto {
 	@IsDefined()
 	@IsString()
 	@IsUrl()
-	fullUrl: string
+	url: string
 
 	@ApiProperty({ required: false })
 	@IsNotEmpty()

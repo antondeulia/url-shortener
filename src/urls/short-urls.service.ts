@@ -43,7 +43,7 @@ export class ShortUrlsService {
 	async getStatus(userId: string, id: string): Promise<any> {
 		const shortUrl = await this.getOneOrThrow({ id, userId })
 
-		const isUrlAccessible = await this.isUrlAccessible(shortUrl.fullUrl)
+		const isUrlAccessible = await this.isUrlAccessible(shortUrl.url)
 
 		return {
 			name: shortUrl.name,
@@ -54,11 +54,11 @@ export class ShortUrlsService {
 		}
 	}
 
-	async openOne(userId: string, code: string, res: Response): Promise<void> {
+	async openOne(code: string, res: Response): Promise<void> {
 		const fullUrl: string = await this.cache.get(code)
 
 		if (fullUrl) {
-			const shortUrl = await this.getOneOrThrow({ code, userId })
+			const shortUrl = await this.getOneOrThrow({ code })
 
 			await this.shortUrlModel.updateOne(
 				{ _id: shortUrl._id },
@@ -68,8 +68,7 @@ export class ShortUrlsService {
 			res.redirect(fullUrl)
 		} else {
 			const shortUrl = await this.shortUrlModel.findOne({
-				code,
-				userId
+				code
 			})
 
 			if (!shortUrl) {
@@ -87,26 +86,26 @@ export class ShortUrlsService {
 
 	async createOne(
 		userId: string,
-		{ fullUrl, name, bgColor }: CreateShortUrlDto
+		{ url, name, bgColor }: CreateShortUrlDto
 	): Promise<ShortUrl> {
 		const existingShortUrl = await this.shortUrlModel.findOne({
-			fullUrl,
+			url,
 			userId
 		})
 
 		if (existingShortUrl) {
-			throw new ConflictException('Short url for ' + fullUrl + ' already exists')
+			throw new ConflictException('Short url for ' + url + ' already exists')
 		}
 
-		await this.isUrlAccessible(fullUrl)
+		await this.isUrlAccessible(url)
 
 		const code = this.generateUniqueString(6)
 		const shortenedUrl = this.HOST + `/${SHORT_URLS}/` + code
-		const type = this.extractUrlType(fullUrl)
+		const type = this.extractUrlType(url)
 
 		const createdShortUrl = await this.shortUrlModel.create({
 			bgColor,
-			fullUrl,
+			url,
 			shortenedUrl,
 			code,
 			type,
@@ -117,7 +116,7 @@ export class ShortUrlsService {
 		try {
 			const savedShortUrl = await createdShortUrl.save()
 
-			await this.cache.set(savedShortUrl.code, fullUrl)
+			await this.cache.set(savedShortUrl.code, url)
 
 			return savedShortUrl
 		} catch (error) {
@@ -183,7 +182,11 @@ export class ShortUrlsService {
 			return await this.shortUrlModel.findById(id, userId)
 		}
 
-		let query: FilterQuery<ShortUrl> = { userId }
+		let query: FilterQuery<ShortUrl> = {}
+
+		if (userId) {
+			query.userId = userId
+		}
 
 		if (code) {
 			query.code = code

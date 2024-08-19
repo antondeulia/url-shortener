@@ -24,8 +24,6 @@ export class AuthService {
 		return await this.generateTokens(user._id, res)
 	}
 
-	async refresh() {}
-
 	async generateTokens(userId: Types.ObjectId, res: Response): Promise<string> {
 		const accessToken = await this.jwtService.signAsync(
 			{ userId },
@@ -58,7 +56,7 @@ export class AuthService {
 			return false
 		}
 
-		const isPasswordValid = verify(user.hashedPassword, password)
+		const isPasswordValid = await verify(user.hashedPassword, password)
 
 		if (!isPasswordValid) {
 			return false

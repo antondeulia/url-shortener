@@ -15,7 +15,7 @@ import {
 import { ShortUrlsService } from './short-urls.service'
 import { CreateShortUrlDto } from './dtos/create-short-url.dto'
 import { Response } from 'express'
-import { ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard'
 import { CurrentUser } from '../utils/decorators/current-user.decorator'
 import { SHORT_URLS } from './short-urls.constants'
@@ -23,13 +23,18 @@ import { ShortUrl } from './schemas/short-url.schema'
 import { Types } from 'mongoose'
 import { GetShortUrlsQueryDto } from './dtos/get-short-urls-query.dto'
 
+@ApiBearerAuth('jwt')
 @ApiTags(SHORT_URLS)
-@UseGuards(JwtAccessGuard)
 @Controller(SHORT_URLS)
 export class ShortUrlsController {
 	constructor(private readonly shortUrlsService: ShortUrlsService) {}
 
-	@ApiOperation({ description: 'Returns all short urls' })
+	@UseGuards(JwtAccessGuard)
+	@ApiOperation({ summary: 'Get all shorten urls for user' })
+	@ApiResponse({
+		status: HttpStatus.OK,
+		description: 'Returns an array of shorten urls'
+	})
 	@HttpCode(HttpStatus.OK)
 	@Get()
 	async get(
@@ -39,7 +44,13 @@ export class ShortUrlsController {
 		return await this.shortUrlsService.get(userId, queryDto)
 	}
 
-	@ApiOperation({ description: 'Returns status of the short url' })
+	@UseGuards(JwtAccessGuard)
+	@ApiOperation({ summary: 'Get status of a short url' })
+	@ApiResponse({ status: HttpStatus.OK, description: 'Returns status of a short url' })
+	@ApiResponse({
+		status: HttpStatus.NOT_FOUND,
+		description: 'Shorten url was not found'
+	})
 	@Get(':code/status')
 	async getStatus(
 		@CurrentUser('_id') userId: string,
@@ -48,18 +59,34 @@ export class ShortUrlsController {
 		return await this.shortUrlsService.getStatus(userId, id)
 	}
 
-	@ApiOperation({ description: 'Redirects to full url by code' })
+	@ApiOperation({ summary: 'Redirects to full url' })
+	@ApiResponse({
+		status: HttpStatus.OK,
+		description: 'Successfully redirected to a full url'
+	})
+	@ApiResponse({
+		status: HttpStatus.NOT_FOUND,
+		description: 'Shorten url was not found'
+	})
 	@HttpCode(HttpStatus.OK)
 	@Get(':code')
 	async openOne(
-		@CurrentUser('_id') userId: string,
 		@Param('code') code: string,
 		@Res({ passthrough: true }) res: Response
 	): Promise<void> {
-		await this.shortUrlsService.openOne(userId, code, res)
+		await this.shortUrlsService.openOne(code, res)
 	}
 
-	@ApiOperation({ description: 'Shorten given url' })
+	@UseGuards(JwtAccessGuard)
+	@ApiOperation({ summary: 'Shorten given url' })
+	@ApiResponse({
+		status: HttpStatus.OK,
+		description: 'Succesfully shortened given url'
+	})
+	@ApiResponse({
+		status: HttpStatus.BAD_REQUEST,
+		description: 'Given url is not accessible'
+	})
 	@HttpCode(HttpStatus.OK)
 	@Post('shorten')
 	async shortenUrl(
@@ -69,7 +96,13 @@ export class ShortUrlsController {
 		return await this.shortUrlsService.createOne(userId, dto)
 	}
 
-	@ApiOperation({ description: 'Update a short url' })
+	@UseGuards(JwtAccessGuard)
+	@ApiOperation({ summary: 'Update a short url' })
+	@ApiResponse({
+		status: HttpStatus.OK,
+		description: 'Shortened url successfully updated'
+	})
+	@ApiResponse({ status: HttpStatus.NOT_FOUND })
 	@HttpCode(HttpStatus.OK)
 	@Patch(':id')
 	async updateOne(
@@ -80,7 +113,16 @@ export class ShortUrlsController {
 		return await this.shortUrlsService.updateOne(userId, id, dto)
 	}
 
-	@ApiOperation({ description: 'Delete a short url' })
+	@UseGuards(JwtAccessGuard)
+	@ApiOperation({ summary: 'Delete a short url' })
+	@ApiResponse({
+		status: HttpStatus.OK,
+		description: 'Shorten url was succesfully deleted'
+	})
+	@ApiResponse({
+		status: HttpStatus.NOT_FOUND,
+		description: 'Shortened url was not found'
+	})
 	@HttpCode(HttpStatus.OK)
 	@Delete(':id')
 	async deleteOne(

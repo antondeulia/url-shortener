@@ -8,5 +8,5 @@ export class GetShortUrlDto {
 	code?: string
 
 	@ApiProperty()
-	userId: string
+	userId?: string
 }

@@ -10,7 +10,7 @@ export class ShortUrl {
 	name?: string
 
 	@Prop({ required: true })
-	fullUrl: string
+	url: string
 
 	@Prop({ required: true })
 	shortenedUrl: string
