@@ -1,4 +1,4 @@
-import { Body, Controller, HttpStatus, Post, Res, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, HttpStatus, Post, Res, UseGuards } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { RegisterDto } from './dtos/register.dto'
@@ -12,6 +12,11 @@ import { LoginDto } from './dtos/login.dto'
 @Controller('auth')
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
+
+	@Get('/debug-sentry')
+	getError() {
+		throw new Error('My first Sentry error!')
+	}
 
 	@ApiOperation({ summary: 'Register a user' })
 	@ApiResponse({ status: HttpStatus.OK, description: 'Succesfully registered' })

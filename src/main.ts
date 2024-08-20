@@ -1,3 +1,5 @@
+import './utils/sentry/sentry-setup'
+
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { ConfigService } from '@nestjs/config'
@@ -6,6 +8,7 @@ import { swaggerSetup } from './utils/swagger/swagger-setup'
 import { NestExpressApplication } from '@nestjs/platform-express'
 import { Modes } from './utils/enums/modes.enum'
 import { Logger } from '@nestjs/common'
+import { sentrySetup } from './utils/sentry/sentry-setup'
 
 const logger = new Logger('app')
 
@@ -18,8 +21,13 @@ async function bootstrap() {
 	const PORT = configService.getOrThrow<number>('PORT')
 	const MODE: Modes = configService.getOrThrow<Modes>('MODE')
 
-	if (MODE !== Modes.prod) {
-		swaggerSetup(app)
+	switch (MODE) {
+		case Modes.dev && Modes.stage:
+			swaggerSetup(app)
+			break
+		case Modes.prod:
+			sentrySetup(configService.getOrThrow<string>('SENTRY_DSN'))
+			break
 	}
 
 	await app
