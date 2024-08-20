@@ -24,6 +24,8 @@ async function bootstrap() {
 	switch (MODE) {
 		case Modes.dev && Modes.stage:
 			swaggerSetup(app)
+			sentrySetup(configService.getOrThrow<string>('SENTRY_DSN'))
+
 			break
 		case Modes.prod:
 			sentrySetup(configService.getOrThrow<string>('SENTRY_DSN'))
