@@ -18,7 +18,7 @@ export const swaggerSetup = (app: NestExpressApplication) => {
 
 	const document = SwaggerModule.createDocument(app, config)
 
-	SwaggerModule.setup('api/v1/testing', app, document, {
+	SwaggerModule.setup('docs', app, document, {
 		customCssUrl:
 			'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
 		customJs: [
