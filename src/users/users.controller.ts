@@ -12,7 +12,11 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard'
 import { UpdateUserDto } from './dtos/update-user.dto'
 import { CurrentUser } from 'src/utils/decorators/current-user.decorator'
+import { SkipThrottle } from '@nestjs/throttler'
+import { UpdatePasswordDto } from './dtos/update-password.dto'
+import { Types } from 'mongoose'
 
+@SkipThrottle()
 @ApiBearerAuth('jwt')
 @ApiTags('users')
 @UseGuards(JwtAccessGuard)
@@ -25,7 +29,9 @@ export class UsersController {
 	@ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User was not found' })
 	@Get()
 	async getOne(@CurrentUser('_id') id: string) {
-		return await this.usersService.getOneOrThrow({ id })
+		return await this.usersService.getOneOrThrow({
+			id
+		})
 	}
 
 	@ApiOperation({ summary: "Updates user's profile" })
@@ -34,8 +40,22 @@ export class UsersController {
 		description: "User's profile sucessfully updated"
 	})
 	@ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User was not found' })
-	@Patch(':id')
-	async updateOne(@Param('id') id: string, @Body() dto: UpdateUserDto) {
+	@Patch()
+	async updateOne(@CurrentUser('_id') id: string, @Body() dto: UpdateUserDto) {
 		return await this.usersService.updateOne(id, dto)
+	}
+
+	@ApiOperation({ summary: "Updates user's password" })
+	@ApiResponse({
+		status: HttpStatus.OK,
+		description: 'Password was successfully changed'
+	})
+	@ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid old password' })
+	@Patch('update-password')
+	async updatePassword(
+		@CurrentUser('_id') id: string,
+		@Body() dto: UpdatePasswordDto
+	): Promise<Types.ObjectId> {
+		return await this.usersService.updatePassword(id, dto)
 	}
 }

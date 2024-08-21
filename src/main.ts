@@ -24,7 +24,7 @@ async function bootstrap() {
 	const MODE: Modes = configService.getOrThrow<Modes>('MODE')
 
 	switch (MODE) {
-		case Modes.dev && Modes.stage:
+		case Modes.dev || Modes.stage:
 			swaggerSetup(app)
 			break
 		case Modes.prod:

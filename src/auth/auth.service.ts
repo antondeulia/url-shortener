@@ -50,7 +50,10 @@ export class AuthService {
 	}
 
 	async validateUser(email: string, password: string): Promise<any> {
-		const user = await this.usersService.getOne({ email })
+		const user = await this.usersService.getOne({
+			email,
+			options: { returnPassword: true }
+		})
 
 		if (!user) {
 			return false

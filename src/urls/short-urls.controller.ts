@@ -22,7 +22,10 @@ import { SHORT_URLS } from './short-urls.constants'
 import { ShortUrl } from './schemas/short-url.schema'
 import { Types } from 'mongoose'
 import { GetShortUrlsQueryDto } from './dtos/get-short-urls-query.dto'
+import { UpdateShortUrlDto } from './dtos/update-short-url.dto'
+import { SkipThrottle } from '@nestjs/throttler'
 
+@SkipThrottle()
 @ApiBearerAuth('jwt')
 @ApiTags(SHORT_URLS)
 @Controller(SHORT_URLS)
@@ -59,6 +62,7 @@ export class ShortUrlsController {
 		return await this.shortUrlsService.getStatus(userId, id)
 	}
 
+	@SkipThrottle({ default: false })
 	@ApiOperation({ summary: 'Redirects to full url' })
 	@ApiResponse({
 		status: HttpStatus.OK,
@@ -108,7 +112,7 @@ export class ShortUrlsController {
 	async updateOne(
 		@CurrentUser('_id') userId: string,
 		@Param('id') id: string,
-		@Body() dto: any
+		@Body() dto: UpdateShortUrlDto
 	): Promise<Types.ObjectId> {
 		return await this.shortUrlsService.updateOne(userId, id, dto)
 	}

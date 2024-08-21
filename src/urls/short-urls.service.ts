@@ -26,7 +26,7 @@ export class ShortUrlsService {
 
 	constructor(
 		@InjectModel(ShortUrl.name) private readonly shortUrlModel: Model<ShortUrl>,
-		@Inject(CACHE_MANAGER) private readonly cache: Cache,
+		@Inject(CACHE_MANAGER) private readonly redisCache: Cache,
 		private readonly configService: ConfigService
 	) {}
 
@@ -55,7 +55,7 @@ export class ShortUrlsService {
 	}
 
 	async openOne(code: string, res: Response): Promise<void> {
-		const fullUrl: string = await this.cache.get(code)
+		const fullUrl: string = await this.redisCache.get(code)
 
 		if (fullUrl) {
 			const shortUrl = await this.getOneOrThrow({ code })
@@ -64,6 +64,8 @@ export class ShortUrlsService {
 				{ _id: shortUrl._id },
 				{ $set: { clicks: shortUrl.clicks + 1 } }
 			)
+
+			console.log(fullUrl)
 
 			res.redirect(fullUrl)
 		} else {
@@ -80,7 +82,7 @@ export class ShortUrlsService {
 				{ clicks: shortUrl.clicks + 1 }
 			)
 
-			res.redirect(shortUrl.type + shortUrl.shortenedUrl)
+			res.redirect(shortUrl.url)
 		}
 	}
 
@@ -116,7 +118,7 @@ export class ShortUrlsService {
 		try {
 			const savedShortUrl = await createdShortUrl.save()
 
-			await this.cache.set(savedShortUrl.code, url)
+			await this.redisCache.set(savedShortUrl.code, url)
 
 			return savedShortUrl
 		} catch (error) {
@@ -134,6 +136,10 @@ export class ShortUrlsService {
 		try {
 			await this.shortUrlModel.updateOne({ _id: id, userId }, { $set: dto })
 
+			if (dto.url) {
+				await this.redisCache.set(shortUrl.code, dto.url)
+			}
+
 			return shortUrl._id
 		} catch (error) {
 			throw new InternalServerErrorException(error)
@@ -145,6 +151,8 @@ export class ShortUrlsService {
 
 		try {
 			await this.shortUrlModel.deleteOne({ _id: id, userId })
+
+			await this.redisCache.del(shortUrl.code)
 
 			return shortUrl
 		} catch (error) {
@@ -179,7 +187,7 @@ export class ShortUrlsService {
 
 	private async getOne({ id, code, userId }: GetShortUrlDto) {
 		if (id) {
-			return await this.shortUrlModel.findById(id, userId)
+			return await this.shortUrlModel.findOne({ _id: id, userId })
 		}
 
 		let query: FilterQuery<ShortUrl> = {}

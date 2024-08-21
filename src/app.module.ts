@@ -7,6 +7,8 @@ import { UsersModule } from './users/users.module'
 import { AuthModule } from './auth/auth.module'
 import { LoggerMiddleware } from './utils/middlewares/logger.middleware'
 import { SentryModule } from '@sentry/nestjs/setup'
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
+import { APP_GUARD } from '@nestjs/core'
 
 @Module({
 	imports: [
@@ -14,9 +16,21 @@ import { SentryModule } from '@sentry/nestjs/setup'
 		ConfigModule.forRoot({ isGlobal: true }),
 		RedisModule,
 		MongoDbModule,
+		ThrottlerModule.forRoot([
+			{
+				ttl: 60000,
+				limit: 10
+			}
+		]),
 		ShortUrlsModule,
 		UsersModule,
 		AuthModule
+	],
+	providers: [
+		{
+			provide: APP_GUARD,
+			useClass: ThrottlerGuard
+		}
 	]
 })
 export class AppModule {

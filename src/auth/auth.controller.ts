@@ -1,13 +1,4 @@
-import {
-	BadRequestException,
-	Body,
-	Controller,
-	Get,
-	HttpStatus,
-	Post,
-	Res,
-	UseGuards
-} from '@nestjs/common'
+import { Body, Controller, HttpStatus, Post, Res, UseGuards } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { RegisterDto } from './dtos/register.dto'
@@ -16,7 +7,9 @@ import { LocalGuard } from './guards/local.guard'
 import { CurrentUser } from '../utils/decorators/current-user.decorator'
 import { Types } from 'mongoose'
 import { LoginDto } from './dtos/login.dto'
+import { SkipThrottle } from '@nestjs/throttler'
 
+@SkipThrottle()
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {

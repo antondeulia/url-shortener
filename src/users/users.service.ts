@@ -2,14 +2,18 @@ import {
 	ConflictException,
 	Injectable,
 	InternalServerErrorException,
-	NotFoundException
+	NotFoundException,
+	UnauthorizedException
 } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { User } from './users.schema'
-import { Model } from 'mongoose'
+import { Model, Types } from 'mongoose'
 import { GetUserDto } from './dtos/get-user.dto'
 import { USER_NOT_FOUND } from './users.constants'
 import { CreateUserDto } from './dtos/create-user.dto'
+import { UpdateUserDto } from './dtos/update-user.dto'
+import { hash, verify } from 'argon2'
+import { UpdatePasswordDto } from './dtos/update-password.dto'
 
 @Injectable()
 export class UsersService {
@@ -64,16 +68,42 @@ export class UsersService {
 		return savedUser._id
 	}
 
-	async updateOne(id: string, dto: any) {
+	async updateOne(id: string, dto: UpdateUserDto) {
 		const user = await this.getOneOrThrow({ id })
 
 		try {
+			if (dto.email) {
+				const userByEmail = await this.userModel.findOne({ email: dto.email })
+
+				if (userByEmail) {
+					throw new ConflictException(
+						'User with this email is already existing'
+					)
+				}
+			}
+
 			await this.userModel.updateOne({ _id: id }, { $set: dto })
 
 			return user._id
 		} catch (error) {
 			throw new InternalServerErrorException(error)
 		}
+	}
+
+	async updatePassword(id: string, dto: UpdatePasswordDto): Promise<Types.ObjectId> {
+		const user = await this.getOneOrThrow({ id })
+
+		const isPasswordValid = await verify(user.hashedPassword, dto.oldPassword)
+
+		if (!isPasswordValid) {
+			throw new UnauthorizedException('Invalid password')
+		}
+
+		const hashedPassword = await hash(dto.newPassword)
+
+		await this.userModel.updateOne({ _id: id }, { $set: { hashedPassword } })
+
+		return user._id
 	}
 
 	async deleteOne(id: string) {
