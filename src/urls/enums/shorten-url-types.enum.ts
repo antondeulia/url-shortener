@@ -1,9 +1,9 @@
 export enum ShortUrlTypesEnum {
 	http = 'http',
 	https = 'https',
-	phone = 'tel',
+	phone = 'phone',
 	email = 'email',
-	telegram = 'tg',
-	instagram = 'inst',
-	youtube = 'yt'
+	telegram = 'telegram',
+	instagram = 'instagram',
+	youtube = 'youtube'
 }
