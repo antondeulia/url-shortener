@@ -19,54 +19,83 @@
     <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
   <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Url shortener test task
+
+## The stage version of the application:
+
+https://url-shortener-tau-lilac.vercel.app/
+
+## Way 1: To run all the components by docker-compose:
+
+```bash
+$ docker-compose up
+```
+
+## Way 2: Pre-installation (to launch the project you need to run redis and mongodb locally)
+
+```bash
+# run mongodb
+$ docker run --name mongodb-container -d -p 27017:27017 mongo
+```
+
+```bash
+# run redis
+$ docker run --name redis -d -p 6379:6379 redis
+```
+
+## Then copy and paste the following content in your .env file:
+
+```bash
+MODE=dev
+PORT=4200
+HOST=http://localhost:4200
+REDIS_HOST=http://localhost
+REDIS_PORT=6379
+JWT_ACCESS_SECRET=access-secret
+JWT_ACCESS_EXPIRES=1d
+JWT_REFRESH_SECRET=refresh-secret
+JWT_REFRESH_EXPIRES=7d
+MONGODB_URL=mongodb://localhost:27017/database
+```
 
 ## Installation
 
 ```bash
-$ pnpm install
+$ yarn install
 ```
 
 ## Running the app
 
 ```bash
 # development
-$ pnpm run start
+$ yarn start
 
 # watch mode
-$ pnpm run start:dev
+$ yarn start:dev
 
 # production mode
-$ pnpm run start:prod
+$ yarn start:prod
 ```
 
 ## Test
 
 ```bash
 # unit tests
-$ pnpm run test
+$ yarn test
 
 # e2e tests
-$ pnpm run test:e2e
+$ yarn test:e2e
 
 # test coverage
-$ pnpm run test:cov
+$ yarn test:cov
 ```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
 
 ## Stay in touch
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+-   Author - [Anton Deulia](anton.deulia06@gmail.com)
 
 ## License
 

@@ -1,16 +1,25 @@
 version: '3.8'
 
 services:
-    backend:
+    url_shortener:
         build: .
-        container_name: nestjs-app
+        container_name: url-shortener
         ports:
-            - '3000:3000'
+            - '4200:4200'
         depends_on:
             - mongodb
             - redis
         environment:
-            MONGO_URL: mongodb://mongodb:27017/nest
+            MODE: dev
+            PORT: 4200
+            HOST: http://localhost:4200
+            JWT_ACCESS_SECRET: access-secret
+            JWT_ACCESS_EXPIRES: 1d
+            JWT_REFRESH_SECRET: refresh-secret
+            JWT_REFRESH_EXPIRES: 7d
+            SENTRY_DSN: https://b4caa5b3369db8c83165cd055a710627@o4507809720172544.ingest.de.sentry.io/4507809721942096
+            MONGODB_URL: mongodb://mongodb:27017/nest
+            REDIS_PASSWORD: Z6b0BpkLIZG2FlUM2RLVfrom3TNokbkz
             REDIS_HOST: redis
             REDIS_PORT: 6379
 

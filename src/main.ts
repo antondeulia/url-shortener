@@ -24,7 +24,7 @@ async function bootstrap() {
 	const MODE: Modes = configService.getOrThrow<Modes>('MODE')
 
 	if (MODE === Modes.prod) {
-		sentrySetup(configService.getOrThrow<string>('SENTRY_DSN'))
+		sentrySetup(configService.get<string>('SENTRY_DSN'))
 	} else {
 		swaggerSetup(app)
 	}
