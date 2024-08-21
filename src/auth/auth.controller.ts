@@ -22,11 +22,6 @@ import { LoginDto } from './dtos/login.dto'
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
-	@Get('/debug-sentry')
-	getError() {
-		throw new BadRequestException('My first Sentry error!')
-	}
-
 	@ApiOperation({ summary: 'Register a user' })
 	@ApiResponse({ status: HttpStatus.OK, description: 'Succesfully registered' })
 	@ApiResponse({

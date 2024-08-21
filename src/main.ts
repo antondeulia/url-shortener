@@ -18,14 +18,14 @@ async function bootstrap() {
 	app.useGlobalInterceptors(new LoggerInterceptor())
 
 	const configService = app.get<ConfigService>(ConfigService)
+
+	const HOST = configService.getOrThrow<string>('HOST')
 	const PORT = configService.getOrThrow<number>('PORT')
 	const MODE: Modes = configService.getOrThrow<Modes>('MODE')
 
 	switch (MODE) {
 		case Modes.dev && Modes.stage:
 			swaggerSetup(app)
-			sentrySetup(configService.getOrThrow<string>('SENTRY_DSN'))
-
 			break
 		case Modes.prod:
 			sentrySetup(configService.getOrThrow<string>('SENTRY_DSN'))
@@ -34,6 +34,6 @@ async function bootstrap() {
 
 	await app
 		.listen(PORT)
-		.then(() => logger.log(`Application is running on PORT:${PORT}`))
+		.then(() => logger.log(`Application is running on host: ${HOST}`))
 }
 bootstrap()
