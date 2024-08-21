@@ -26,7 +26,7 @@ import { SkipThrottle } from '@nestjs/throttler'
 
 @SkipThrottle()
 @ApiBearerAuth('jwt')
-@ApiTags()
+@ApiTags('short-urls')
 @Controller()
 export class ShortUrlsController {
 	constructor(private readonly shortUrlsService: ShortUrlsService) {}
