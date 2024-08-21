@@ -26,14 +26,14 @@ export class ShortUrlsService {
 
 	constructor(
 		@InjectModel(ShortUrl.name) private readonly shortUrlModel: Model<ShortUrl>,
-		@Inject(CACHE_MANAGER) private readonly redisCache: Cache,
+		@Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
 		private readonly configService: ConfigService
 	) {}
 
-	async get(userId: string, queryDto: GetShortUrlsQueryDto): Promise<ShortUrl[]> {
+	async get(userId: string, queryDto?: GetShortUrlsQueryDto): Promise<ShortUrl[]> {
 		let query: FilterQuery<ShortUrl> = { userId }
 
-		if (queryDto.type) {
+		if (queryDto?.type) {
 			query.type = queryDto.type
 		}
 
@@ -55,27 +55,14 @@ export class ShortUrlsService {
 	}
 
 	async openOne(code: string, res: Response): Promise<void> {
-		const fullUrl: string = await this.redisCache.get(code)
+		const fullUrl: string = await this.cacheManager.get(code)
 
 		if (fullUrl) {
-			const shortUrl = await this.getOneOrThrow({ code })
-
-			await this.shortUrlModel.updateOne(
-				{ _id: shortUrl._id },
-				{ $set: { clicks: shortUrl.clicks + 1 } }
-			)
-
-			console.log(fullUrl)
+			await this.shortUrlModel.updateOne({ code }, { $inc: { clicks: 1 } })
 
 			res.redirect(fullUrl)
 		} else {
-			const shortUrl = await this.shortUrlModel.findOne({
-				code
-			})
-
-			if (!shortUrl) {
-				throw new NotFoundException(SHORT_URL_NOT_FOUND)
-			}
+			const shortUrl = await this.getOneOrThrow({ code })
 
 			await this.shortUrlModel.updateOne(
 				{ _id: shortUrl._id },
@@ -101,8 +88,10 @@ export class ShortUrlsService {
 
 		await this.isUrlAccessible(url)
 
-		const code = this.generateUniqueString(6)
+		const code = this.generateCode(6)
+
 		const shortenedUrl = this.HOST + `/${SHORT_URLS}/` + code
+
 		const type = this.extractUrlType(url)
 
 		const createdShortUrl = await this.shortUrlModel.create({
@@ -118,7 +107,7 @@ export class ShortUrlsService {
 		try {
 			const savedShortUrl = await createdShortUrl.save()
 
-			await this.redisCache.set(savedShortUrl.code, url)
+			await this.cacheManager.set(savedShortUrl.code, url)
 
 			return savedShortUrl
 		} catch (error) {
@@ -137,7 +126,7 @@ export class ShortUrlsService {
 			await this.shortUrlModel.updateOne({ _id: id, userId }, { $set: dto })
 
 			if (dto.url) {
-				await this.redisCache.set(shortUrl.code, dto.url)
+				await this.cacheManager.set(shortUrl.code, dto.url)
 			}
 
 			return shortUrl._id
@@ -152,7 +141,7 @@ export class ShortUrlsService {
 		try {
 			await this.shortUrlModel.deleteOne({ _id: id, userId })
 
-			await this.redisCache.del(shortUrl.code)
+			await this.cacheManager.del(shortUrl.code)
 
 			return shortUrl
 		} catch (error) {
@@ -170,7 +159,7 @@ export class ShortUrlsService {
 		}
 	}
 
-	private generateUniqueString(length: number): string {
+	private generateCode(length: number): string {
 		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 
 		let result = ''
