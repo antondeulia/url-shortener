@@ -18,7 +18,6 @@ import { Response } from 'express'
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard'
 import { CurrentUser } from '../utils/decorators/current-user.decorator'
-import { SHORT_URLS } from './short-urls.constants'
 import { ShortUrl } from './schemas/short-url.schema'
 import { Types } from 'mongoose'
 import { GetShortUrlsQueryDto } from './dtos/get-short-urls-query.dto'
@@ -27,8 +26,8 @@ import { SkipThrottle } from '@nestjs/throttler'
 
 @SkipThrottle()
 @ApiBearerAuth('jwt')
-@ApiTags(SHORT_URLS)
-@Controller(SHORT_URLS)
+@ApiTags()
+@Controller()
 export class ShortUrlsController {
 	constructor(private readonly shortUrlsService: ShortUrlsService) {}
 

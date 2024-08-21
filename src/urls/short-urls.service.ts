@@ -13,7 +13,7 @@ import { FilterQuery, Model, Types } from 'mongoose'
 import { Response } from 'express'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Cache } from 'cache-manager'
-import { SHORT_URL_NOT_FOUND, SHORT_URLS } from './short-urls.constants'
+import { SHORT_URL_NOT_FOUND } from './short-urls.constants'
 import { UpdateShortUrlDto } from './dtos/update-short-url.dto'
 import { GetShortUrlDto } from './dtos/get-short-url.dto'
 import { ConfigService } from '@nestjs/config'
@@ -90,7 +90,7 @@ export class ShortUrlsService {
 
 		const code = this.generateCode(6)
 
-		const shortenedUrl = this.HOST + `/${SHORT_URLS}/` + code
+		const shortenedUrl = this.HOST + '/' + code
 
 		const type = this.extractUrlType(url)
 
